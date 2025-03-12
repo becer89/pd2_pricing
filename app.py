@@ -102,15 +102,20 @@ st.markdown("""
         section[data-testid="stSidebar"] {
             width: 400px !important;
         }
-        /* ✅ Input szeroki i wyśrodkowany */
+        /* ✅ SZEROKIE pole input - wymuszone poprzez flexbox */
         div[data-testid="stNumberInput"] {
-            width: 80% !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-        }  
-        div[data-testid="stNumberInput"] {
-            width: 80px !important;
-        }                                             
+            width: 120px !important;   /* ✅ Teraz na pewno wystarczająco szerokie */
+            max-width: 100% !important;
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+        } 
+        /* ✅ Dostosowanie liczników (+/-) */
+        div[data-testid="stNumberInput"] input {
+            text-align: center;
+            font-size: 16px;
+            padding: 5px;
+        }                                            
     </style>
 """, unsafe_allow_html=True)
 

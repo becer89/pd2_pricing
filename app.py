@@ -21,13 +21,7 @@ st.markdown('<div class="app-container">', unsafe_allow_html=True)
 # 🎨 Custom CSS for better UI
 st.markdown("""
     <style>
-        .stButton>button { width: 100%; padding: 10px; font-size: 18px; }
-        .summary-box { 
-            border: 2px solid #4CAF50; padding: 15px; border-radius: 10px; 
-            background-color: #f9f9f9; text-align: center;
-        }
-        .summary-title { font-size: 22px; font-weight: bold; color: #4CAF50; }
-        .summary-value { font-size: 18px; margin-bottom: 10px; }
+        /* ✅ Ramka produktu */
         .item-container {
             display: flex;
             flex-direction: column;
@@ -39,32 +33,25 @@ st.markdown("""
             margin-bottom: 5px;
             width: 100%;
         }
-        .item-text {
-            flex: 1;  /* Automatyczne dopasowanie szerokości */
-        }
-        .item-header { display: flex; justify-content: space-between; width: 100%; align-items: center; }
+
+        /* ✅ Nazwa produktu */
         .item-name { 
             font-size: 18px !important; 
             font-weight: bold !important; 
             margin-bottom: 2px !important;
         }
+
+        /* ✅ Wartości cenowe */
         .item-price { 
             font-size: 14px !important; 
             font-style: italic !important; 
             color: gray !important; 
             margin-top: 0px !important;
         }
-        .item-input {
-            min-width: 60px;
-            text-align: center !important;
-            padding: 5px;
-        }
-        .stNumberInput {
-            width: 100% !important;  /* Szerokość równa ramce */
-            height: 40px !important;
-            border-radius: 5px !important;
-            border: 1px solid #ccc !important;
-            text-align: center !important;
+
+        /* ✅ Pole do wpisywania ilości (pod ramką, pełna szerokość) */
+        div[data-testid="stNumberInput"] {
+            width: 100% !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -158,9 +145,9 @@ if uploaded_file:
                         </div>
                     """, unsafe_allow_html=True)
 
-                    # 🔹 Pole do wpisania ilości (pod ramką)
+                    # 🔹 Pole do wpisania ilości pod ramką, BEZ dodatkowego opisu
                     user_inputs[row['Name']] = st.number_input(
-                        f"Quantity for {row['Name']}", min_value=0, step=1, key=row['Name']
+                        "", min_value=0, step=1, key=row['Name']
                     )
 
     # 📊 Right Column - Summary
@@ -172,8 +159,10 @@ if uploaded_file:
             total_gul_min, total_gul_max = 0, 0
             total_wss_min, total_wss_max = 0, 0
 
-            for name, row in df.set_index('Name').iterrows():
+            for name in user_inputs.keys():
                 quantity = user_inputs[name]
+                row = df[df["Name"] == name].iloc[0]  # Pobranie poprawnego wiersza
+
                 if quantity > 0:
                     total_hr_min += quantity * row['HR Min']
                     total_hr_max += quantity * row['HR Max']

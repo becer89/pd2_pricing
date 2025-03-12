@@ -10,18 +10,18 @@ st.write("Upload your Excel file and calculate item prices.")
 uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
 
 if uploaded_file:
-    # 📌 Read Excel file
+    # 📌 Read the "Trade Values" sheet
     df = pd.read_excel(uploaded_file, sheet_name="Trade Values", header=1, dtype=str)
 
-    # 🧹 Clean empty rows
+    # 🧹 Remove empty rows
     df.dropna(how='all', inplace=True)
 
     # 🏷️ Merge columns to create the "Name" field
     df['Name'] = df['Number'].astype(str).str.strip() + ' ' + df['Rune'].astype(str).str.strip()
 
-    # 🔍 Clean item names
+    # 🔍 Clean item names by removing text in parentheses
     def clean_name(name):
-        name = re.sub(r'\\(.*?\\)', '', name)  # Remove content inside parentheses
+        name = re.sub(r'\(.*?\)', '', name)  # Remove everything inside parentheses
         name = name.replace(' nan', '').strip()  # Remove "nan" artifacts
         return name
 
@@ -60,24 +60,27 @@ if uploaded_file:
     # 🏷️ Fill missing values with 0
     df.fillna(0, inplace=True)
 
+    # 🗑️ Remove duplicate items to prevent multiple calculations
+    df = df.drop_duplicates(subset=['Name'], keep='first')
+
     # 🎛️ User input for item quantities
     st.subheader("Select item quantities:")
     user_inputs = {}
 
     for index, row in df.iterrows():
-        unique_key = f"{row['Name']}_{index}"  # Generowanie unikalnego klucza
+        unique_key = f"{row['Name']}_{index}"  # Generate a unique key
         user_inputs[row['Name']] = st.number_input(
             row['Name'], min_value=0, step=1, key=unique_key
         )
 
     # 🧮 Calculate total prices
     if st.button("Calculate Value"):
-        total_hr_min = sum(user_inputs[name] * row['HR Min'] for name, row in df.set_index('Name').iterrows())
-        total_hr_max = sum(user_inputs[name] * row['HR Max'] for name, row in df.set_index('Name').iterrows())
-        total_gul_min = sum(user_inputs[name] * row['GUL Min'] for name, row in df.set_index('Name').iterrows())
-        total_gul_max = sum(user_inputs[name] * row['GUL Max'] for name, row in df.set_index('Name').iterrows())
-        total_wss_min = sum(user_inputs[name] * row['WSS Min'] for name, row in df.set_index('Name').iterrows())
-        total_wss_max = sum(user_inputs[name] * row['WSS Max'] for name, row in df.set_index('Name').iterrows())
+        total_hr_min = sum(user_inputs.get(name, 0) * row['HR Min'] for name, row in df.set_index('Name').iterrows())
+        total_hr_max = sum(user_inputs.get(name, 0) * row['HR Max'] for name, row in df.set_index('Name').iterrows())
+        total_gul_min = sum(user_inputs.get(name, 0) * row['GUL Min'] for name, row in df.set_index('Name').iterrows())
+        total_gul_max = sum(user_inputs.get(name, 0) * row['GUL Max'] for name, row in df.set_index('Name').iterrows())
+        total_wss_min = sum(user_inputs.get(name, 0) * row['WSS Min'] for name, row in df.set_index('Name').iterrows())
+        total_wss_max = sum(user_inputs.get(name, 0) * row['WSS Max'] for name, row in df.set_index('Name').iterrows())
 
         # 📊 Display results
         st.subheader("📊 Summary")

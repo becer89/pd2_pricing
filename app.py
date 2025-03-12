@@ -19,10 +19,18 @@ if uploaded_file:
     # 🏷️ Merge columns to create the "Name" field
     df['Name'] = df['Number'].astype(str).str.strip() + ' ' + df['Rune'].astype(str).str.strip()
 
-    # 🔍 Clean item names by removing text in parentheses
+    # 🗑️ Remove products from "1 EL" to "17 LUM"
+    runes_to_remove = [f"{i} {rune}" for i, rune in zip(range(1, 18),
+                    ["EL", "ELD", "TIR", "NEF", "ETH", "ITH", "TAL", "RAL", "ORT", "THUL",
+                     "AMN", "SOL", "SHAEL", "DOL", "HEL", "IO", "LUM"])]
+    df = df[~df['Name'].isin(runes_to_remove)]
+
+    # 🔍 Clean item names by removing numbers from "18 KO" to "33 ZOD"
     def clean_name(name):
         name = re.sub(r'\(.*?\)', '', name)  # Remove everything inside parentheses
         name = name.replace(' nan', '').strip()  # Remove "nan" artifacts
+        if re.match(r'^(1[8-9]|2[0-9]|3[0-3])\s', name):  # Remove numbers from "18 KO" to "33 ZOD"
+            name = re.sub(r'^\d+\s', '', name)
         return name
 
     df['Name'] = df['Name'].apply(clean_name)

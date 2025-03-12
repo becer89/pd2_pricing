@@ -172,9 +172,12 @@ if uploaded_file:
 
     user_inputs = {}
 
-    # 🎛️ Left Column - Grouped Items
-    user_inputs = {}  # Przechowywanie wartości wpisanych przez użytkownika
+    # 🔹 Inicjalizacja wartości w `st.session_state`
+    for key in user_inputs.keys():
+        if key not in st.session_state:
+            st.session_state[key] = 0  # Ustawienie domyślnie na 0
 
+    # 🎛️ Left Column - Grouped Items
     with col1:
         st.subheader("🛍️ Select item quantities:")
         for category, items in categories.items():
@@ -184,7 +187,6 @@ if uploaded_file:
                     col_name, col_input = st.columns([0.7, 0.3])
 
                     with col_name:
-                        # 🔹 Nazwa produktu
                         st.markdown(f"""
                             <div class="item-container">
                                 <p class="item-name">{row['Name']}</p>
@@ -197,7 +199,6 @@ if uploaded_file:
                         """, unsafe_allow_html=True)
 
                     with col_input:
-                        # 🔹 Input znajduje się na wysokości nazwy!
                         user_inputs[row['Name']] = st.number_input(
                             "", min_value=0, step=1, key=row['Name']
                         )
@@ -212,12 +213,10 @@ if uploaded_file:
         st.subheader("📊 Summary")
 
         # 🔹 Przycisk Resetujący ilości produktów
-        reset_clicked = st.button("🔄 Reset")
-
-        # 🔹 Pobranie wartości ilości produktów
-        for key in user_inputs.keys():
-            if reset_clicked:
-                st.session_state[key] = 0  # ✅ Ustawienie wartości na 0
+        if st.button("🔄 Reset"):
+            for key in user_inputs.keys():
+                st.session_state[key] = 0  # ✅ Resetujemy wartości
+            st.experimental_rerun()  # 🔥 Przeładowujemy interfejs, aby wartości się odświeżyły
 
         # 🔹 Przycisk do obliczania wartości
         if st.button("🧾 Calculate Value"):
@@ -248,7 +247,3 @@ if uploaded_file:
             """, unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
-
-
-
-

@@ -7,8 +7,9 @@ st.set_page_config(page_title="PD2 Pricing App", layout="wide")
 st.markdown("""
     <style>
         .appview-container .main .block-container {
-            max-width: 80% !important;
-            margin: auto;
+            max-width: 70% !important;
+            margin: 0 auto !important;
+            padding-top: 0 !important;
         }
     </style>
 """, unsafe_allow_html=True)

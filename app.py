@@ -51,7 +51,7 @@ st.markdown("""
             display: block !important;
         }
         } 
-        .item-input { width: 60px; height: 55px; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
+        .item-input { width: 60px; height: 55px !important; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
     </style>
 """, unsafe_allow_html=True)
 

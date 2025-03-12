@@ -30,7 +30,7 @@ st.markdown("""
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
-            margin-bottom: 5px; /* Minimalny odstęp między produktami */
+            margin-bottom: 0px; /* Usunięcie odstępu pod ramką */
             width: 100%;
         }
 
@@ -50,31 +50,9 @@ st.markdown("""
         }
 
         /* ✅ Pole do wpisywania ilości (bez odstępu) */
-        .item-input {
-            margin-top: 2px !important;  /* Usunięcie zbędnej przestrzeni */
+        div[data-testid="stNumberInput"] {
+            margin-top: 0px !important; /* Usunięcie zbędnej przestrzeni */
             width: 100% !important;
-        }
-
-        /* ✅ Poprawiony wygląd Total Value */
-        .summary-box {
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #f0f0f0;
-            border: 1px solid #ddd;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .summary-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .summary-value {
-            font-size: 18px;
-            color: #444;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -157,6 +135,7 @@ if uploaded_file:
         for category, items in categories.items():
             with st.expander(category, expanded=False):  # Grupy domyślnie zwinięte
                 for _, row in df[df["Name"].isin(items)].iterrows():
+                    # 🔹 Ramka produktu (bez inputa w środku!)
                     st.markdown(f"""
                         <div class="item-container">
                             <p class="item-name">{row['Name']}</p>
@@ -165,11 +144,13 @@ if uploaded_file:
                                 Gul: {row['GUL Min']:.2f}-{row['GUL Max']:.2f}, 
                                 WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
                             </p>
-                            <div class="item-input"> <!-- ✅ Input wewnątrz ramki -->
-                                {st.number_input("", min_value=0, step=1, key=row['Name'])}
-                            </div>
                         </div>
                     """, unsafe_allow_html=True)
+
+                    # 🔹 Input pod ramką (teraz poprawnie)
+                    user_inputs[row['Name']] = st.number_input(
+                        "", min_value=0, step=1, key=row['Name']
+                    )
 
     # 📊 Right Column - Summary
     with col2:

@@ -30,7 +30,7 @@ st.markdown("""
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
-            margin-bottom: 0px; /* Usunięcie odstępu pod ramką */
+            margin-bottom: 5px; /* Minimalny odstęp między produktami */
             width: 100%;
         }
 
@@ -49,13 +49,14 @@ st.markdown("""
             margin-top: 0px !important;
         }
 
-        /* ✅ Pole do wpisywania ilości (bez odstępu) */
+        /* ✅ Pole do wpisywania ilości (100% szerokości, bez odstępu) */
         div[data-testid="stNumberInput"] {
-            margin-top: 0px !important; /* Usunięcie zbędnej przestrzeni */
+            margin-top: -5px !important; /* Usunięcie zbędnej przestrzeni */
             width: 100% !important;
         }
     </style>
 """, unsafe_allow_html=True)
+
 
 # 📥 File uploader
 uploaded_file = st.file_uploader("📂 Upload an Excel file", type=["xlsx"])
@@ -135,7 +136,7 @@ if uploaded_file:
         for category, items in categories.items():
             with st.expander(category, expanded=False):  # Grupy domyślnie zwinięte
                 for _, row in df[df["Name"].isin(items)].iterrows():
-                    # 🔹 Ramka produktu (bez inputa w środku!)
+                    # 🔹 Wyświetlanie produktu (bez inputa wewnątrz!)
                     st.markdown(f"""
                         <div class="item-container">
                             <p class="item-name">{row['Name']}</p>
@@ -147,7 +148,7 @@ if uploaded_file:
                         </div>
                     """, unsafe_allow_html=True)
 
-                    # 🔹 Input pod ramką (teraz poprawnie)
+                    # 🔹 Input BEZPOŚREDNIO pod ramką
                     user_inputs[row['Name']] = st.number_input(
                         "", min_value=0, step=1, key=row['Name']
                     )
@@ -182,3 +183,4 @@ if uploaded_file:
                     <p class='summary-value'><strong>WSS:</strong> {total_wss_min:.2f} - {total_wss_max:.2f}</p>
                 </div>
             """, unsafe_allow_html=True)
+

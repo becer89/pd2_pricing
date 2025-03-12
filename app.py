@@ -108,7 +108,7 @@ if uploaded_file:
     with col1:
         st.subheader("🛍️ Select item quantities:")
         for category, items in categories.items():
-            with st.expander(category, expanded=True):
+            with st.expander(category, expanded=False):  # Zmieniono expanded=True na expanded=False
                 for _, row in df[df["Name"].isin(items)].iterrows():
                     col_left, col_right = st.columns([3, 1])  # Podział na kolumny dla lepszego wyglądu
 
@@ -127,6 +127,7 @@ if uploaded_file:
                     with col_right:
                         user_inputs[row['Name']] = st.number_input(
                             "", min_value=0, step=1, key=row['Name']
+                        )
                         )
 
     # 📊 Right Column - Summary

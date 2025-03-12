@@ -2,15 +2,15 @@ import streamlit as st
 import pandas as pd
 import re
 
-# 📌 Page configuration
-st.set_page_config(page_title="PD2 Pricing App", layout="wide")
+# 📌 Page configuration - set a narrower layout
+st.set_page_config(page_title="PD2 Pricing App", layout="centered")
 st.title("💰 PD2 Pricing App")
 st.markdown("Upload your Excel file and calculate item prices.")
 
 # 🎨 Custom CSS for better UI
 st.markdown("""
     <style>
-        .stTextInput { margin-top: -5px; } /* Reduce spacing above input */
+        .stTextInput { margin-top: -8px; } /* Reduce spacing above input */
         .stButton>button { width: 100%; padding: 10px; font-size: 18px; }
         .summary-box { 
             border: 2px solid #4CAF50; padding: 15px; border-radius: 10px; 
@@ -18,9 +18,13 @@ st.markdown("""
         }
         .summary-title { font-size: 22px; font-weight: bold; color: #4CAF50; }
         .summary-value { font-size: 18px; margin-bottom: 10px; }
+        .item-container { 
+            border: 1px solid #ddd; padding: 8px; border-radius: 5px; 
+            margin-bottom: 5px; background-color: #f9f9f9;
+        }
         .item-name { font-size: 18px; font-weight: bold; margin-bottom: -5px; } /* Reduce spacing */
         .item-price { font-size: 14px; font-style: italic; color: gray; margin-bottom: -5px; } /* Reduce spacing */
-        .stNumberInput>div>div>input { width: 80px !important; } /* Make input field shorter */
+        .stNumberInput>div>div>input { width: 60px !important; } /* Make input field shorter */
     </style>
 """, unsafe_allow_html=True)
 
@@ -81,44 +85,47 @@ if uploaded_file:
         value_max = f"{value_max:.2f}".rstrip('0').rstrip('.')
         return f"{value_min}-{value_max}" if value_min != value_max else value_min
 
-    df['Formatted Price'] = df.apply(lambda row: f"[HR: {format_price(row['HR Min'], row['HR Max'])}, "
+    df['Formatted Price'] = df.apply(lambda row: f"HR: {format_price(row['HR Min'], row['HR Max'])}, "
                                                  f"Gul: {format_price(row['GUL Min'], row['GUL Max'])}, "
-                                                 f"WSS: {format_price(row['WSS Min'], row['WSS Max'])}]", axis=1)
+                                                 f"WSS: {format_price(row['WSS Min'], row['WSS Max'])}", axis=1)
 
     # 🎛️ UI with two columns
     col1, col2 = st.columns([3, 1])
 
-    # 📜 Left Column - Grouped Items
+    # 📜 Left Column - Items List
     with col1:
         st.subheader("🛍️ Select item quantities:")
         user_inputs = {}
 
-        categories = {
-            "Runes": ["Ko", "Fal", "Lem", "Pul", "Um", "Mal", "Ist", "Gul", "Vex", "Ohm", "Lo", "Sur", "Ber", "Jah", "Cham", "Zod"],
-            "Larzuk's Puzzles": ["Larzuk's Puzzlebox", "Larzuk's Puzzlepiece"],
-            "Stocked Mats": ["50 Perfect Gems", "50 Jewel Fragments", "50 Runes (#1-#15)", "50 Craft Infusions", "50 'Map' Orbs", "50 Infused 'Map' Orbs"],
-            "Corrupting": ["Worldstone Shard", "Tainted Worldstone Shard"],
-            "Map Enhancers": ["Catalyst Shard", "Horadrim Scarab", "Standard of Heroes"],
-            "Tokens": ["Token of Absolution", "Essence of Suffering", "Essence of Hatred", "Essence of Terror", "Essence of Destruction"],
-            "Relics": ["Relic of the Ancients", "Sigil of Madawc", "Sigil of Talic", "Sigil of Korlic"],
-            "Ubers": ["3x3 Uber Keys", "Key of Terror", "Key of Hate", "Key of Destruction"],
-            "DC Clone": ["Vision of Terror", "Pure Demonic Essence", "Black Soulstone", "Prime Evil Soul"],
-            "Rhatmas": ["Voidstone", "Splinter of the Void", "Trang-Oul's Jawbone", "Hellfire Ashes"]
-        }
-
-        for category, items in categories.items():
-            with st.expander(category, expanded=False):
-                for _, row in df[df["Name"].isin(items)].iterrows():
-                    col1a, col1b = st.columns([3, 1])
-                    with col1a:
-                        st.markdown(f"<p class='item-name'>{row['Name']}</p>", unsafe_allow_html=True)
-                        st.markdown(f"<p class='item-price'>{row['Formatted Price']}</p>", unsafe_allow_html=True)
-                    with col1b:
-                        user_inputs[row['Name']] = st.number_input("", min_value=0, step=1, key=row['Name'])
+        for index, row in df.iterrows():
+            col1a, col1b = st.columns([3, 1])  # Create row layout (name | input field)
+            with col1a:
+                st.markdown(f"<div class='item-container'>"
+                            f"<p class='item-name'>{row['Name']}</p>"
+                            f"<p class='item-price'>{row['Formatted Price']}</p>"
+                            f"</div>", unsafe_allow_html=True)
+            with col1b:
+                unique_key = f"{row['Name']}_{index}"
+                user_inputs[row['Name']] = st.number_input("", min_value=0, step=1, key=unique_key)
 
     # 📊 Right Column - Summary
     with col2:
         st.subheader("📊 Summary")
 
         if st.button("🧾 Calculate Value"):
-            st.write("Total value calculation here...")
+            total_hr_min = sum(user_inputs.get(name, 0) * row['HR Min'] for name, row in df.set_index('Name').iterrows())
+            total_hr_max = sum(user_inputs.get(name, 0) * row['HR Max'] for name, row in df.set_index('Name').iterrows())
+            total_gul_min = sum(user_inputs.get(name, 0) * row['GUL Min'] for name, row in df.set_index('Name').iterrows())
+            total_gul_max = sum(user_inputs.get(name, 0) * row['GUL Max'] for name, row in df.set_index('Name').iterrows())
+            total_wss_min = sum(user_inputs.get(name, 0) * row['WSS Min'] for name, row in df.set_index('Name').iterrows())
+            total_wss_max = sum(user_inputs.get(name, 0) * row['WSS Max'] for name, row in df.set_index('Name').iterrows())
+
+            # 📊 Styled summary box
+            st.markdown(f"""
+                <div class='summary-box'>
+                    <p class='summary-title'>🧾 Total Value</p>
+                    <p class='summary-value'><strong>HR:</strong> {format_price(total_hr_min, total_hr_max)}</p>
+                    <p class='summary-value'><strong>Gul:</strong> {format_price(total_gul_min, total_gul_max)}</p>
+                    <p class='summary-value'><strong>WSS:</strong> {format_price(total_wss_min, total_wss_max)}</p>
+                </div>
+            """, unsafe_allow_html=True)

@@ -30,15 +30,17 @@ st.markdown("""
         .summary-value { font-size: 18px; margin-bottom: 10px; }
         .item-container {
             display: flex;
-            flex-direction: column;
             justify-content: space-between;
+            align-items: center;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
-            margin-bottom: 3px;
+            margin-bottom: 5px;
             width: 100%;
         }
+        .item-text {
+            flex: 1;  /* Automatyczne dopasowanie szerokości */
         }
         .item-header { display: flex; justify-content: space-between; width: 100%; align-items: center; }
         .item-name { 
@@ -52,16 +54,10 @@ st.markdown("""
             color: gray !important; 
             margin-top: 0px !important;
         }
-        } 
         .item-input {
-            width: 60px !important; 
-            height: 30px !important; 
-            border-radius: 5px !important;
-            border: 1px solid #ccc !important;
+            min-width: 60px;
             text-align: center !important;
-            font-size: 14px !important;
-            margin-left: 10px !important;
-            padding: 2px !important;
+            padding: 5px;
         }
         .stNumberInput {
             width: 50px !important; 
@@ -153,11 +149,10 @@ if uploaded_file:
             with st.expander(category, expanded=False):  # Grupy domyślnie zwinięte
                 for _, row in df[df["Name"].isin(items)].iterrows():
                     with st.container():
-                        col_left, col_right = st.columns([4, 1])  # Nazwa + wartości (4) | Input (1)
-
-                        with col_left:
-                            st.markdown(f"""
-                                <div class="item-container">
+                        # 📌 Rozciągnięcie ramki i dodanie pola input do środka
+                        st.markdown(f"""
+                            <div class="item-container">
+                                <div class="item-text">
                                     <p class="item-name">{row['Name']}</p>
                                     <p class="item-price">
                                         HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, 
@@ -165,12 +160,11 @@ if uploaded_file:
                                         WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
                                     </p>
                                 </div>
-                            """, unsafe_allow_html=True)
-
-                        with col_left:  # 🔹 Input teraz jest w tej samej kolumnie, co nazwa i cena
-                            user_inputs[row['Name']] = st.number_input(
-                                "", min_value=0, step=1, key=row['Name']
-                            )
+                                <div class="item-input">
+                                    {st.number_input("", min_value=0, step=1, key=row['Name'])}
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
 
     # 📊 Right Column - Summary
     with col2:

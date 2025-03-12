@@ -103,30 +103,31 @@ if uploaded_file:
     user_inputs = {}
 
     # 🎛️ Left Column - Grouped Items
+    user_inputs = {}  # Przechowywanie wartości wpisanych przez użytkownika
+
     with col1:
         st.subheader("🛍️ Select item quantities:")
         for category, items in categories.items():
             with st.expander(category, expanded=True):
                 for _, row in df[df["Name"].isin(items)].iterrows():
-                    with st.container():
-                        # Wyświetlanie produktu z pogrubioną nazwą i kursywą cen
+                    col_left, col_right = st.columns([3, 1])  # Podział na kolumny dla lepszego wyglądu
+
+                    # 🏷️ Wyświetlanie nazwy przedmiotu i ceny (kursywa)
+                    with col_left:
                         st.markdown(f"""
-                            <div class='item-container'>
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <p class='item-name' style="font-size: 18px; font-weight: bold;">{row['Name']}</p>
-                                        <p class='item-price' style="font-size: 14px; font-style: italic; color: gray;">
-                                            HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, 
-                                            Gul: {row['GUL Min']:.2f}-{row['GUL Max']:.2f}, 
-                                            WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        {st.number_input("", min_value=0, step=1, key=row['Name'])}
-                                    </div>
-                                </div>
-                            </div>
+                            <p style="font-size: 18px; font-weight: bold;">{row['Name']}</p>
+                            <p style="font-size: 14px; font-style: italic; color: gray;">
+                                HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, 
+                                Gul: {row['GUL Min']:.2f}-{row['GUL Max']:.2f}, 
+                                WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
+                            </p>
                         """, unsafe_allow_html=True)
+
+                    # 🔢 Pole do wpisania ilości (przypisane do `user_inputs`)
+                    with col_right:
+                        user_inputs[row['Name']] = st.number_input(
+                            "", min_value=0, step=1, key=row['Name']
+                        )
 
     # 📊 Right Column - Summary
     with col2:
@@ -150,6 +151,7 @@ if uploaded_file:
                     total_wss_min += quantity * row['WSS Min']
                     total_wss_max += quantity * row['WSS Max']
 
+            # 🔥 Wyświetlenie poprawnej sumy wartości
             st.markdown(f"""
                 <div class='summary-box'>
                     <p class='summary-title'>🧾 Total Value</p>

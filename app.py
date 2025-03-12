@@ -38,13 +38,18 @@ st.markdown("""
             font-size: 18px !important; 
             font-weight: bold !important; 
             margin-bottom: 0px !important; 
-            line-height: 1.2 !important; 
+            padding-bottom: 0px !important;
+            line-height: 1 !important; /* Zmniejszenie domyślnej wysokości wiersza */
+            display: block !important;
         }
         .item-price { 
             font-size: 14px !important; 
             font-style: italic !important; 
             color: gray !important; 
-            margin-top: 0px !important; 
+            margin-top: -5px !important; /* Ujemny margines, aby cena była bliżej nazwy */
+            padding-top: 0px !important;
+            display: block !important;
+        }
         } 
         .item-input { width: 60px; height: 55px; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
     </style>

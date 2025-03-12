@@ -128,7 +128,6 @@ if uploaded_file:
                         user_inputs[row['Name']] = st.number_input(
                             "", min_value=0, step=1, key=row['Name']
                         )
-                        )
 
     # 📊 Right Column - Summary
     with col2:

@@ -97,7 +97,25 @@ st.markdown("""
         }
         div.stButton > button:hover {
             opacity: 0.8;
-        }                   
+        }    
+        /* ✅ Zwiększamy szerokość panelu bocznego */
+        section[data-testid="stSidebar"] {
+            width: 400px !important;
+        }
+        /* ✅ Stylizacja kart produktów */
+        .item-container {
+            padding: 8px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+        /* ✅ Input szeroki i wyśrodkowany */
+        div[data-testid="stNumberInput"] {
+            width: 80% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }                                       
     </style>
 """, unsafe_allow_html=True)
 

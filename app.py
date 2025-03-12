@@ -34,8 +34,18 @@ st.markdown("""
             display: flex; flex-direction: column;
         }
         .item-header { display: flex; justify-content: space-between; width: 100%; align-items: center; }
-        .item-name { font-size: 18px; font-weight: bold; margin-bottom: 0px; } 
-        .item-price { font-size: 14px; font-style: italic; color: gray; margin-bottom: 5px; } 
+        .item-name { 
+            font-size: 18px !important; 
+            font-weight: bold !important; 
+            margin-bottom: 0px !important; 
+            line-height: 1.2 !important; 
+        }
+        .item-price { 
+            font-size: 14px !important; 
+            font-style: italic !important; 
+            color: gray !important; 
+            margin-top: 0px !important; 
+        } 
         .item-input { width: 60px; height: 55px; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
     </style>
 """, unsafe_allow_html=True)

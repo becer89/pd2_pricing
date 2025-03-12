@@ -34,9 +34,9 @@ st.markdown("""
             display: flex; flex-direction: column;
         }
         .item-header { display: flex; justify-content: space-between; width: 100%; align-items: center; }
-        .item-name { font-size: 18px; font-weight: bold; margin-bottom: 2px; } 
+        .item-name { font-size: 18px; font-weight: bold; margin-bottom: 0px; } 
         .item-price { font-size: 14px; font-style: italic; color: gray; margin-bottom: 5px; } 
-        .item-input { width: 60px; height: 35px; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
+        .item-input { width: 60px; height: 55px; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
     </style>
 """, unsafe_allow_html=True)
 

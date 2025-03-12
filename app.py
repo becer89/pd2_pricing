@@ -28,30 +28,45 @@ st.markdown("""
         }
         .summary-title { font-size: 22px; font-weight: bold; color: #4CAF50; }
         .summary-value { font-size: 18px; margin-bottom: 10px; }
-        .item-container { 
-            border: 1px solid #ddd; padding: 10px; border-radius: 5px; 
-            margin-bottom: 5px; background-color: #f9f9f9;
-            display: flex; flex-direction: column;
+        .item-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 3px; /* Minimalny odstęp między produktami */
+            background-color: #f9f9f9;
         }
         .item-header { display: flex; justify-content: space-between; width: 100%; align-items: center; }
         .item-name { 
             font-size: 18px !important; 
             font-weight: bold !important; 
-            margin-bottom: 0px !important; 
-            padding-bottom: 0px !important;
-            line-height: 1 !important; /* Zmniejszenie domyślnej wysokości wiersza */
-            display: block !important;
+            line-height: 1 !important; /* Minimalna wysokość wiersza */
+            margin: 0px !important;
+            padding: 0px !important;
+            display: inline-block !important;
         }
         .item-price { 
             font-size: 14px !important; 
             font-style: italic !important; 
             color: gray !important; 
-            margin-top: -5px !important; /* Ujemny margines, aby cena była bliżej nazwy */
-            padding-top: 0px !important;
-            display: block !important;
+            margin: 0px !important;
+            padding: 0px !important;
+            line-height: 1 !important;
+            display: inline-block !important;
         }
         } 
-        .item-input { width: 60px; height: 55px !important; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
+        .item-input {
+            width: 60px !important; 
+            height: 30px !important; 
+            border-radius: 5px !important;
+            border: 1px solid #ccc !important;
+            text-align: center !important;
+            font-size: 14px !important;
+            margin-left: 10px !important;
+            padding: 2px !important;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -131,26 +146,26 @@ if uploaded_file:
     with col1:
         st.subheader("🛍️ Select item quantities:")
         for category, items in categories.items():
-            with st.expander(category, expanded=False):  # Zmieniono expanded=True na expanded=False
+            with st.expander(category, expanded=False):  # Grupy domyślnie zwinięte
                 for _, row in df[df["Name"].isin(items)].iterrows():
-                    col_left, col_right = st.columns([3, 1])  # Podział na kolumny dla lepszego wyglądu
+                    user_inputs[row['Name']] = st.number_input(
+                        f"{row['Name']}", min_value=0, step=1, key=row['Name']
+                    )
 
-                    # 🏷️ Wyświetlanie nazwy przedmiotu i ceny (kursywa)
-                    with col_left:
-                        st.markdown(f"""
-                            <p style="font-size: 18px; font-weight: bold;">{row['Name']}</p>
-                            <p style="font-size: 14px; font-style: italic; color: gray;">
-                                HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, 
-                                Gul: {row['GUL Min']:.2f}-{row['GUL Max']:.2f}, 
-                                WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
-                            </p>
-                        """, unsafe_allow_html=True)
-
-                    # 🔢 Pole do wpisania ilości (przypisane do `user_inputs`)
-                    with col_right:
-                        user_inputs[row['Name']] = st.number_input(
-                            "", min_value=0, step=1, key=row['Name']
-                        )
+                    # 📌 Tworzenie niestandardowego układu
+                    st.markdown(f"""
+                        <div class="item-container">
+                            <div>
+                                <p class="item-name">{row['Name']}</p>
+                                <p class="item-price">
+                                    HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, 
+                                    Gul: {row['GUL Min']:.2f}-{row['GUL Max']:.2f}, 
+                                    WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
+                                </p>
+                            </div>
+                            <input class="item-input" type="number" min="0" value="0">
+                        </div>
+                    """, unsafe_allow_html=True)
 
     # 📊 Right Column - Summary
     with col2:

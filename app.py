@@ -20,17 +20,17 @@ if uploaded_file:
     df['Name'] = df['Number'].astype(str).str.strip() + ' ' + df['Rune'].astype(str).str.strip()
 
     # 🗑️ Remove products from "1 EL" to "17 LUM"
-    runes_to_remove = [f"{i} {rune}" for i, rune in zip(range(1, 18),
-                    ["EL", "ELD", "TIR", "NEF", "ETH", "ITH", "TAL", "RAL", "ORT", "THUL",
-                     "AMN", "SOL", "SHAEL", "DOL", "HEL", "IO", "LUM"])]
+    runes_to_remove = [
+        "1 EL", "2 ELD", "3 TIR", "4 NEF", "5 ETH", "6 ITH", "7 TAL", "8 RAL", "9 ORT", "10 THUL",
+        "11 AMN", "12 SOL", "13 SHAEL", "14 DOL", "15 HEL", "16 IO", "17 LUM"
+    ]
     df = df[~df['Name'].isin(runes_to_remove)]
 
     # 🔍 Clean item names by removing numbers from "18 KO" to "33 ZOD"
     def clean_name(name):
         name = re.sub(r'\(.*?\)', '', name)  # Remove everything inside parentheses
         name = name.replace(' nan', '').strip()  # Remove "nan" artifacts
-        if re.match(r'^(1[8-9]|2[0-9]|3[0-3])\s', name):  # Remove numbers from "18 KO" to "33 ZOD"
-            name = re.sub(r'^\d+\s', '', name)
+        name = re.sub(r'^(1[8-9]|2[0-9]|3[0-3])\s', '', name)  # Remove numbers from "18 KO" to "33 ZOD"
         return name
 
     df['Name'] = df['Name'].apply(clean_name)
@@ -70,6 +70,11 @@ if uploaded_file:
 
     # 🗑️ Remove duplicate items to prevent multiple calculations
     df = df.drop_duplicates(subset=['Name'], keep='first')
+
+    # 🔹 Add prices in square brackets to item names
+    df['Name'] = df.apply(lambda row: f"{row['Name']} [HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, "
+                                      f"Gul: {row['GUL Min']:.2f}-{row['GUL Max']:.2f}, "
+                                      f"WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}]", axis=1)
 
     # 🎛️ User input for item quantities
     st.subheader("Select item quantities:")

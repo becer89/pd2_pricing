@@ -4,7 +4,7 @@ import re
 
 # 📌 Page configuration - enforce 80% width
 st.set_page_config(page_title="PD2 Pricing App", layout="wide")
-st.markdown('<style>.app-container { max-width: 80%; margin: auto; }</style>', unsafe_allow_html=True)
+st.markdown('<style>.app-container { max-width: 65%; margin: auto; }</style>', unsafe_allow_html=True)
 
 st.title("💰 PD2 Pricing App")
 st.markdown("Upload your Excel file and calculate item prices.")

@@ -57,11 +57,49 @@ st.markdown("""
             height: 1px;
             background: #bbb;
         }
+        .center-content {
+            text-align: center;
+        }
+        .summary-box {
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-top: 10px;
+        }
+        .summary-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }        
+        .summary-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 5px 0;
+        }
+        div.stButton > button:first-child {
+            background-color: #dc3545 !important;
+            color: white !important;
+            border-radius: 8px;
+            width: 100%;
+            height: 40px;
+            margin-top: 10px;
+        }
+        div.stButton > button:nth-child(2) {
+            background-color: #28a745 !important;
+            color: white !important;
+            border-radius: 8px;
+            width: 100%;
+            height: 40px;
+        }
+        div.stButton > button:hover {
+            opacity: 0.8;
+        }                   
     </style>
 """, unsafe_allow_html=True)
-
-
-
 
 
 # 📥 File uploader
@@ -169,8 +207,16 @@ if uploaded_file:
 
     # 📊 Right Column - Summary
     with col2:
+        st.markdown("<div class='center-content'>", unsafe_allow_html=True)
+
         st.subheader("📊 Summary")
 
+        # 🔹 Przycisk Resetujący ilości produktów
+        if st.button("🔄 Reset"):
+            for key in user_inputs.keys():
+                st.session_state[key] = 0  # Resetuje wartości do 0
+
+        # 🔹 Przycisk do obliczania wartości
         if st.button("🧾 Calculate Value"):
             total_hr_min, total_hr_max = 0, 0
             total_gul_min, total_gul_max = 0, 0
@@ -197,4 +243,7 @@ if uploaded_file:
                     <p class='summary-value'><strong>WSS:</strong> {total_wss_min:.2f} - {total_wss_max:.2f}</p>
                 </div>
             """, unsafe_allow_html=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
 

@@ -21,7 +21,7 @@ st.markdown('<div class="app-container">', unsafe_allow_html=True)
 # 🎨 Custom CSS for better UI
 st.markdown("""
     <style>
-        /* ✅ Usunięcie marginesów między produktami */
+        /* ✅ Produkt */
         .item-container {
             padding: 5px;
             margin-bottom: 0px !important;
@@ -45,20 +45,21 @@ st.markdown("""
 
         /* ✅ Input dokładnie pod produktem */
         div[data-testid="stNumberInput"] {
-            margin-top: -5px !important; /* Jeszcze mniejszy odstęp */
+            margin-top: 3px !important;  /* Usunięcie zbędnej przestrzeni */
             width: 100% !important;
         }
 
         /* ✅ Pozioma kreska pod inputem */
-        hr {
-            margin-top: 6px !important;
-            margin-bottom: 6px !important;
+        .product-divider {
+            margin-top: 5px !important;
+            margin-bottom: 10px !important;
             border: 0;
             height: 1px;
-            background: #ccc;
+            background: #bbb;
         }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 # 📥 File uploader
@@ -139,7 +140,7 @@ if uploaded_file:
         for category, items in categories.items():
             with st.expander(category, expanded=False):  # Grupy domyślnie zwinięte
                 for _, row in df[df["Name"].isin(items)].iterrows():
-                    # 🔹 Wyświetlanie produktu (bez ramki, ale z minimalnym odstępem)
+                    # 🔹 Blok HTML dla każdego produktu
                     st.markdown(f"""
                         <div class="item-container">
                             <p class="item-name">{row['Name']}</p>
@@ -153,11 +154,11 @@ if uploaded_file:
 
                     # 🔹 Input BEZPOŚREDNIO pod produktem
                     user_inputs[row['Name']] = st.number_input(
-                        "", min_value=0, step=1, key=row['Name']
+                        f"Quantity ({row['Name']})", min_value=0, step=1, key=row['Name']
                     )
 
                     # 🔹 Pozioma kreska POD inputem (oddziela produkty)
-                    st.markdown("<hr>", unsafe_allow_html=True)
+                    st.markdown("<hr class='product-divider'>", unsafe_allow_html=True)
 
     # 📊 Right Column - Summary
     with col2:

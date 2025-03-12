@@ -111,20 +111,33 @@ if uploaded_file:
                         user_inputs[row['Name']] = st.number_input(
                             f"{row['Name']}", min_value=0, step=1, key=row['Name']
                         )
-
+    # 📊 Right Column - Summary
     with col2:
         st.subheader("📊 Summary")
 
         if st.button("🧾 Calculate Value"):
-            total_hr_min = sum(user_inputs[name] * row['HR Min'] for name, row in df.set_index('Name').iterrows())
-            total_gul_min = sum(user_inputs[name] * row['GUL Min'] for name, row in df.set_index('Name').iterrows())
-            total_wss_min = sum(user_inputs[name] * row['WSS Min'] for name, row in df.set_index('Name').iterrows())
+            total_hr_min = 0
+            total_hr_max = 0
+            total_gul_min = 0
+            total_gul_max = 0
+            total_wss_min = 0
+            total_wss_max = 0
+
+            for name, row in df.set_index('Name').iterrows():
+                quantity = user_inputs.get(name, 0)
+                if quantity > 0:
+                    total_hr_min += quantity * row['HR Min']
+                    total_hr_max += quantity * row['HR Max']
+                    total_gul_min += quantity * row['GUL Min']
+                    total_gul_max += quantity * row['GUL Max']
+                    total_wss_min += quantity * row['WSS Min']
+                    total_wss_max += quantity * row['WSS Max']
 
             st.markdown(f"""
                 <div class='summary-box'>
                     <p class='summary-title'>🧾 Total Value</p>
-                    <p class='summary-value'><strong>HR:</strong> {total_hr_min:.2f}</p>
-                    <p class='summary-value'><strong>Gul:</strong> {total_gul_min:.2f}</p>
-                    <p class='summary-value'><strong>WSS:</strong> {total_wss_min:.2f}</p>
+                    <p class='summary-value'><strong>HR:</strong> {total_hr_min:.2f} - {total_hr_max:.2f}</p>
+                    <p class='summary-value'><strong>Gul:</strong> {total_gul_min:.2f} - {total_gul_max:.2f}</p>
+                    <p class='summary-value'><strong>WSS:</strong> {total_wss_min:.2f} - {total_wss_max:.2f}</p>
                 </div>
             """, unsafe_allow_html=True)

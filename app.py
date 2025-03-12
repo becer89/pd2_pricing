@@ -215,6 +215,7 @@ if uploaded_file:
         if st.button("🔄 Reset"):
             for key in user_inputs.keys():
                 st.session_state[key] = 0  # Resetuje wartości do 0
+            st.rerun()  # 🔥 PRZEŁADOWANIE INTERFEJSU, aby wartości się zresetowały
 
         # 🔹 Przycisk do obliczania wartości
         if st.button("🧾 Calculate Value"):
@@ -223,7 +224,7 @@ if uploaded_file:
             total_wss_min, total_wss_max = 0, 0
 
             for name in user_inputs.keys():
-                quantity = user_inputs[name]
+                quantity = st.session_state[name]  # ✅ Pobieramy poprawną wartość!
                 row = df[df["Name"] == name].iloc[0]  # Pobranie poprawnego wiersza
 
                 if quantity > 0:
@@ -245,5 +246,6 @@ if uploaded_file:
             """, unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
+
 
 

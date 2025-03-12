@@ -28,11 +28,23 @@ st.markdown("""
             width: 100%;
         }
 
+        /* ✅ Kontener nagłówka */
+        .item-header {
+            display: flex;
+            justify-content: space-between; /* Input po prawej, nazwa po lewej */
+            align-items: center;
+        }
+
         /* ✅ Nazwa produktu */
         .item-name { 
             font-size: 18px !important; 
             font-weight: bold !important; 
             margin-bottom: 2px !important;
+        }
+
+        /* ✅ Input obok nazwy */
+        .item-input {
+            width: 70px !important; /* Węższy input */
         }
 
         /* ✅ Wartości cenowe */
@@ -43,13 +55,7 @@ st.markdown("""
             margin-top: 0px !important;
         }
 
-        /* ✅ Input dokładnie pod produktem */
-        div[data-testid="stNumberInput"] {
-            margin-top: 3px !important;  /* Usunięcie zbędnej przestrzeni */
-            width: 100% !important;
-        }
-
-        /* ✅ Pozioma kreska pod inputem */
+        /* ✅ Pozioma kreska pod produktem */
         .product-divider {
             margin-top: 5px !important;
             margin-bottom: 10px !important;
@@ -59,6 +65,7 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 
@@ -140,25 +147,23 @@ if uploaded_file:
         for category, items in categories.items():
             with st.expander(category, expanded=False):  # Grupy domyślnie zwinięte
                 for _, row in df[df["Name"].isin(items)].iterrows():
-                    # 🔹 Blok HTML dla każdego produktu
+                    # 🔹 Wyświetlanie produktu (input obok nazwy)
                     st.markdown(f"""
                         <div class="item-container">
-                            <p class="item-name">{row['Name']}</p>
+                            <div class="item-header">
+                                <p class="item-name">{row['Name']}</p>
+                                <div class="item-input">
+                                    {st.number_input("", min_value=0, step=1, key=row['Name'])}
+                                </div>
+                            </div>
                             <p class="item-price">
                                 HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, 
                                 Gul: {row['GUL Min']:.2f}-{row['GUL Max']:.2f}, 
                                 WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
                             </p>
                         </div>
+                        <hr class='product-divider'>
                     """, unsafe_allow_html=True)
-
-                    # 🔹 Input BEZPOŚREDNIO pod produktem
-                    user_inputs[row['Name']] = st.number_input(
-                        f"Quantity ({row['Name']})", min_value=0, step=1, key=row['Name']
-                    )
-
-                    # 🔹 Pozioma kreska POD inputem (oddziela produkty)
-                    st.markdown("<hr class='product-divider'>", unsafe_allow_html=True)
 
     # 📊 Right Column - Summary
     with col2:

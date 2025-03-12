@@ -65,7 +65,10 @@ if uploaded_file:
     user_inputs = {}
 
     for index, row in df.iterrows():
-        user_inputs[row['Name']] = st.number_input(row['Name'], min_value=0, step=1)
+        unique_key = f"{row['Name']}_{index}"  # Generowanie unikalnego klucza
+        user_inputs[row['Name']] = st.number_input(
+            row['Name'], min_value=0, step=1, key=unique_key
+        )
 
     # 🧮 Calculate total prices
     if st.button("Calculate Value"):

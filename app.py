@@ -32,11 +32,12 @@ st.markdown("""
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 5px 10px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
             margin-bottom: 3px;
+            width: 100%;
         }
         }
         .item-header { display: flex; justify-content: space-between; width: 100%; align-items: center; }
@@ -62,12 +63,13 @@ st.markdown("""
             margin-left: 10px !important;
             padding: 2px !important;
         }
-            .stNumberInput {
-            text-align: center !important;
-            width: 60px !important;
-            height: 30px !important;
+        .stNumberInput {
+            width: 50px !important; 
+            height: 30px !important; 
             border-radius: 5px !important;
             border: 1px solid #ccc !important;
+            text-align: center !important;
+            margin-left: auto !important;  
         }
     </style>
 """, unsafe_allow_html=True)
@@ -150,24 +152,25 @@ if uploaded_file:
         for category, items in categories.items():
             with st.expander(category, expanded=False):  # Grupy domyślnie zwinięte
                 for _, row in df[df["Name"].isin(items)].iterrows():
-                    col_left, col_right = st.columns([3, 1])  # Dwie kolumny: nazwa + wartości oraz pole input
+                    with st.container():
+                        col_left, col_right = st.columns([4, 1])  # Nazwa + wartości (4) | Input (1)
 
-                    with col_left:
-                        st.markdown(f"""
-                            <div class="item-container">
-                                <p class="item-name">{row['Name']}</p>
-                                <p class="item-price">
-                                    HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, 
-                                    Gul: {row['GUL Min']:.2f}-{row['GUL Max']:.2f}, 
-                                    WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
-                                </p>
-                            </div>
-                        """, unsafe_allow_html=True)
+                        with col_left:
+                            st.markdown(f"""
+                                <div class="item-container">
+                                    <p class="item-name">{row['Name']}</p>
+                                    <p class="item-price">
+                                        HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, 
+                                        Gul: {row['GUL Min']:.2f}-{row['GUL Max']:.2f}, 
+                                        WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
+                                    </p>
+                                </div>
+                            """, unsafe_allow_html=True)
 
-                    with col_right:
-                        user_inputs[row['Name']] = st.number_input(
-                            "", min_value=0, step=1, key=row['Name']
-                        )
+                        with col_left:  # 🔹 Input teraz jest w tej samej kolumnie, co nazwa i cena
+                            user_inputs[row['Name']] = st.number_input(
+                                "", min_value=0, step=1, key=row['Name']
+                            )
 
     # 📊 Right Column - Summary
     with col2:

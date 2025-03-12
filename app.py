@@ -25,9 +25,10 @@ st.markdown("""
             margin-bottom: 5px; background-color: #f9f9f9;
             display: flex; flex-direction: column;
         }
+        .item-header { display: flex; justify-content: space-between; width: 100%; align-items: center; }
         .item-name { font-size: 18px; font-weight: bold; margin-bottom: 2px; } 
         .item-price { font-size: 14px; font-style: italic; color: gray; margin-bottom: 5px; } 
-        .stNumberInput>div>div>input { width: 60px !important; height: 35px !important; margin-top: -5px; } 
+        .item-input { width: 60px; height: 35px; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -82,58 +83,48 @@ if uploaded_file:
     df.fillna(0, inplace=True)
     df = df.drop_duplicates(subset=['Name'], keep='first')
 
-    # 🔹 Format prices for display
-    def format_price(value_min, value_max):
-        value_min = f"{value_min:.2f}".rstrip('0').rstrip('.')
-        value_max = f"{value_max:.2f}".rstrip('0').rstrip('.')
-        return f"{value_min}-{value_max}" if value_min != value_max else value_min
-
-    df['Formatted Price'] = df.apply(lambda row: f"HR: {format_price(row['HR Min'], row['HR Max'])}, "
-                                                 f"Gul: {format_price(row['GUL Min'], row['GUL Max'])}, "
-                                                 f"WSS: {format_price(row['WSS Min'], row['WSS Max'])}", axis=1)
+    # 📌 Define categories
+    categories = {
+        "Runes": ["Ko", "Fal", "Lem", "Pul", "Um", "Mal", "Ist", "Gul", "Vex", "Ohm", "Lo", "Sur", "Ber", "Jah", "Cham", "Zod"],
+        "Larzuk's Puzzles": ["Larzuk's Puzzlebox", "Larzuk's Puzzlepiece"],
+        "Stocked Mats": ["50 Perfect Gems", "50 Jewel Fragments", "50 Runes (#1-#15)", "50 Craft Infusions", "50 'Map' Orbs", "50 Infused 'Map' Orbs"],
+        "Corrupting": ["Worldstone Shard", "Tainted Worldstone Shard"],
+        "Map Enhancers": ["Catalyst Shard", "Horadrim Scarab", "Standard of Heroes"],
+        "Tokens": ["Token of Absolution", "Essence of Suffering", "Essence of Hatred", "Essence of Terror", "Essence of Destruction"],
+        "Relics": ["Relic of the Ancients", "Sigil of Madawc", "Sigil of Talic", "Sigil of Korlic"],
+        "Ubers": ["3x3 Uber Keys", "Key of Terror", "Key of Hate", "Key of Destruction"],
+        "DC Clone": ["Vision of Terror", "Pure Demonic Essence", "Black Soulstone", "Prime Evil Soul"],
+        "Rhatmas": ["Voidstone", "Splinter of the Void", "Trang-Oul's Jawbone", "Hellfire Ashes"]
+    }
 
     # 🎛️ UI with two columns
     col1, col2 = st.columns([3.3, 1])
 
-    # 📜 Left Column - Grouped Items
+    user_inputs = {}
+
     with col1:
         st.subheader("🛍️ Select item quantities:")
-        user_inputs = {}
-
-        categories = {
-            "Runes": ["Ko", "Fal", "Lem", "Pul", "Um", "Mal", "Ist", "Gul", "Vex", "Ohm", "Lo", "Sur", "Ber", "Jah", "Cham", "Zod"],
-            "Tokens": ["Token of Absolution", "Essence of Suffering", "Essence of Hatred", "Essence of Terror", "Essence of Destruction"],
-            "Ubers": ["3x3 Uber Keys", "Key of Terror", "Key of Hate", "Key of Destruction"]
-        }
-
         for category, items in categories.items():
-            with st.expander(category, expanded=False):
+            with st.expander(category, expanded=True):
                 for _, row in df[df["Name"].isin(items)].iterrows():
                     with st.container():
-                        st.markdown(f"""
-                            <div class='item-container'>
-                                <p class='item-name'>{row['Name']}</p>
-                                <p class='item-price'>{row['Formatted Price']}</p>
-                                {st.number_input("", min_value=0, step=1, key=row['Name'])}
-                            </div>
-                        """, unsafe_allow_html=True)
+                        user_inputs[row['Name']] = st.number_input(
+                            f"{row['Name']} ({row['Formatted Price']})", min_value=0, step=1, key=row['Name']
+                        )
 
-    # 📊 Right Column - Summary
     with col2:
         st.subheader("📊 Summary")
 
         if st.button("🧾 Calculate Value"):
-            total_hr_min = sum(user_inputs.get(name, 0) * row['HR Min'] for name, row in df.set_index('Name').iterrows())
-            total_gul_min = sum(user_inputs.get(name, 0) * row['GUL Min'] for name, row in df.set_index('Name').iterrows())
-            total_wss_min = sum(user_inputs.get(name, 0) * row['WSS Min'] for name, row in df.set_index('Name').iterrows())
+            total_hr_min = sum(user_inputs[name] * row['HR Min'] for name, row in df.set_index('Name').iterrows())
+            total_gul_min = sum(user_inputs[name] * row['GUL Min'] for name, row in df.set_index('Name').iterrows())
+            total_wss_min = sum(user_inputs[name] * row['WSS Min'] for name, row in df.set_index('Name').iterrows())
 
             st.markdown(f"""
                 <div class='summary-box'>
                     <p class='summary-title'>🧾 Total Value</p>
-                    <p class='summary-value'><strong>HR:</strong> {format_price(total_hr_min, total_hr_min)}</p>
-                    <p class='summary-value'><strong>Gul:</strong> {format_price(total_gul_min, total_gul_min)}</p>
-                    <p class='summary-value'><strong>WSS:</strong> {format_price(total_wss_min, total_wss_min)}</p>
+                    <p class='summary-value'><strong>HR:</strong> {total_hr_min:.2f}</p>
+                    <p class='summary-value'><strong>Gul:</strong> {total_gul_min:.2f}</p>
+                    <p class='summary-value'><strong>WSS:</strong> {total_wss_min:.2f}</p>
                 </div>
             """, unsafe_allow_html=True)
-
-st.markdown("</div>", unsafe_allow_html=True)

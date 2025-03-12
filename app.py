@@ -210,16 +210,14 @@ if uploaded_file:
         for category, items in categories.items():
             with st.expander(category, expanded=False):  # Grupy domyślnie zwinięte
                 for _, row in df[df["Name"].isin(items)].iterrows():
-                    col_name, col_input = st.columns([0.7, 0.3])
+                    col_name, col_input = st.columns([0.65, 0.35])  # ✅ Więcej miejsca dla inputa
 
                     with col_name:
                         st.markdown(f"""
-                            <div class="item-container">
-                                <p class="item-name">{row['Name']}</p>
-                                <p class="item-price"><strong>HR:</strong> {row['HR Min']:.2f} - {row['HR Max']:.2f}</p>
-                                <p class="item-price"><strong>Gul:</strong> {row['GUL Min']:.2f} - {row['GUL Max']:.2f}</p>
-                                <p class="item-price"><strong>WSS:</strong> {row['WSS Min']:.2f} - {row['WSS Max']:.2f}</p>
-                            </div>
+                            <p class="item-name">{row['Name']}</p>
+                            <p class="item-price"><strong>HR:</strong> {row['HR Min']:.2f} - {row['HR Max']:.2f}</p>
+                            <p class="item-price"><strong>Gul:</strong> {row['GUL Min']:.2f} - {row['GUL Max']:.2f}</p>
+                            <p class="item-price"><strong>WSS:</strong> {row['WSS Min']:.2f} - {row['WSS Max']:.2f}</p>
                         """, unsafe_allow_html=True)
 
                     with col_input:

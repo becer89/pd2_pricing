@@ -21,16 +21,10 @@ st.markdown('<div class="app-container">', unsafe_allow_html=True)
 # 🎨 Custom CSS for better UI
 st.markdown("""
     <style>
-        /* ✅ Ramka produktu */
+        /* ✅ Usunięcie marginesów między produktami */
         .item-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            margin-bottom: 5px; /* Minimalny odstęp między produktami */
+            padding: 5px;
+            margin-bottom: 0px !important;
             width: 100%;
         }
 
@@ -49,13 +43,23 @@ st.markdown("""
             margin-top: 0px !important;
         }
 
-        /* ✅ Pole do wpisywania ilości (100% szerokości, bez odstępu) */
+        /* ✅ Input dokładnie pod produktem */
         div[data-testid="stNumberInput"] {
-            margin-top: -5px !important; /* Usunięcie zbędnej przestrzeni */
+            margin-top: -8px !important; /* Jeszcze mniejszy odstęp */
             width: 100% !important;
+        }
+
+        /* ✅ Pozioma kreska między produktami */
+        hr {
+            margin-top: 4px !important;
+            margin-bottom: 4px !important;
+            border: 0;
+            height: 1px;
+            background: #ccc;
         }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 # 📥 File uploader
@@ -135,8 +139,8 @@ if uploaded_file:
         st.subheader("🛍️ Select item quantities:")
         for category, items in categories.items():
             with st.expander(category, expanded=False):  # Grupy domyślnie zwinięte
-                for _, row in df[df["Name"].isin(items)].iterrows():
-                    # 🔹 Wyświetlanie produktu (bez inputa wewnątrz!)
+                for i, row in df[df["Name"].isin(items)].iterrows():
+                    # 🔹 Wyświetlanie produktu bez ramki, ale z poziomą kreską
                     st.markdown(f"""
                         <div class="item-container">
                             <p class="item-name">{row['Name']}</p>
@@ -146,9 +150,10 @@ if uploaded_file:
                                 WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
                             </p>
                         </div>
+                        <hr> <!-- 🔹 Pozioma linia oddzielająca produkty -->
                     """, unsafe_allow_html=True)
 
-                    # 🔹 Input BEZPOŚREDNIO pod ramką
+                    # 🔹 Input od razu pod produktem, bez zbędnych odstępów
                     user_inputs[row['Name']] = st.number_input(
                         "", min_value=0, step=1, key=row['Name']
                     )

@@ -212,10 +212,12 @@ if uploaded_file:
         st.subheader("📊 Summary")
 
         # 🔹 Przycisk Resetujący ilości produktów
-        if st.button("🔄 Reset"):
-            for key in user_inputs.keys():
-                st.session_state[key] = 0  # Resetuje wartości do 0
-            st.rerun()  # 🔥 PRZEŁADOWANIE INTERFEJSU, aby wartości się zresetowały
+        reset_clicked = st.button("🔄 Reset")
+
+        # 🔹 Pobranie wartości ilości produktów
+        for key in user_inputs.keys():
+            if reset_clicked:
+                st.session_state[key] = 0  # ✅ Ustawienie wartości na 0
 
         # 🔹 Przycisk do obliczania wartości
         if st.button("🧾 Calculate Value"):
@@ -224,7 +226,7 @@ if uploaded_file:
             total_wss_min, total_wss_max = 0, 0
 
             for name in user_inputs.keys():
-                quantity = st.session_state[name]  # ✅ Pobieramy poprawną wartość!
+                quantity = st.session_state.get(name, 0)  # ✅ Pobieramy wartości poprawnie
                 row = df[df["Name"] == name].iloc[0]  # Pobranie poprawnego wiersza
 
                 if quantity > 0:
@@ -246,6 +248,7 @@ if uploaded_file:
             """, unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 

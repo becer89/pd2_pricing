@@ -2,15 +2,11 @@ import streamlit as st
 import pandas as pd
 import re
 
-# 📌 Page configuration - slightly wider layout
+# 📌 Page configuration - set 80% width
 st.set_page_config(page_title="PD2 Pricing App", layout="wide")
-st.title("💰 PD2 Pricing App")
-st.markdown("Upload your Excel file and calculate item prices.")
-
-# 🎨 Custom CSS for better UI
 st.markdown("""
     <style>
-        .stTextInput { margin-top: -8px; }
+        .app-container { max-width: 80%; margin: auto; } /* Reduce page width */
         .stButton>button { width: 100%; padding: 10px; font-size: 18px; }
         .summary-box { 
             border: 2px solid #4CAF50; padding: 15px; border-radius: 10px; 
@@ -24,9 +20,13 @@ st.markdown("""
         }
         .item-name { font-size: 18px; font-weight: bold; } 
         .item-price { font-size: 14px; font-style: italic; color: gray; } 
-        .stNumberInput>div>div>input { width: 70px !important; height: 40px !important; } 
+        .stNumberInput>div>div>input { width: 60px !important; height: 35px !important; } 
     </style>
 """, unsafe_allow_html=True)
+
+st.title("💰 PD2 Pricing App")
+st.markdown("Upload your Excel file and calculate item prices.")
+st.markdown('<div class="app-container">', unsafe_allow_html=True)
 
 # 📥 File uploader
 uploaded_file = st.file_uploader("📂 Upload an Excel file", type=["xlsx"])
@@ -100,22 +100,22 @@ if uploaded_file:
         categories = {
             "Runes": ["Ko", "Fal", "Lem", "Pul", "Um", "Mal", "Ist", "Gul", "Vex", "Ohm", "Lo", "Sur", "Ber", "Jah", "Cham", "Zod"],
             "Larzuk's Puzzles": ["Larzuk's Puzzlebox", "Larzuk's Puzzlepiece"],
-            "Stocked Mats": ["50 Perfect Gems", "50 Jewel Fragments", "50 Runes (#1-#15)", "50 Craft Infusions", "50 'Map' Orbs", "50 Infused 'Map' Orbs"],
-            "Corrupting": ["Worldstone Shard", "Tainted Worldstone Shard"],
-            "Map Enhancers": ["Catalyst Shard", "Horadrim Scarab", "Standard of Heroes"],
-            "Tokens": ["Token of Absolution", "Essence of Suffering", "Essence of Hatred", "Essence of Terror", "Essence of Destruction"],
-            "Relics": ["Relic of the Ancients", "Sigil of Madawc", "Sigil of Talic", "Sigil of Korlic"],
-            "Ubers": ["3x3 Uber Keys", "Key of Terror", "Key of Hate", "Key of Destruction"],
-            "DC Clone": ["Vision of Terror", "Pure Demonic Essence", "Black Soulstone", "Prime Evil Soul"],
-            "Rhatmas": ["Voidstone", "Splinter of the Void", "Trang-Oul's Jawbone", "Hellfire Ashes"]
+            "Stocked Mats": ["50 Perfect Gems", "50 Jewel Fragments", "50 Runes (#1-#15)", "50 Craft Infusions", "50 'Map' Orbs", "50 Infused 'Map' Orbs"]
         }
 
         for category, items in categories.items():
             with st.expander(category, expanded=False):
                 for _, row in df[df["Name"].isin(items)].iterrows():
-                    user_inputs[row['Name']] = st.number_input(
-                        f"{row['Name']} ({row['Formatted Price']})", min_value=0, step=1, key=row['Name']
-                    )
+                    col_a, col_b = st.columns([3, 1])
+                    with col_a:
+                        st.markdown(f"""
+                            <div class='item-container'>
+                                <p class='item-name'>{row['Name']}</p>
+                                <p class='item-price'>{row['Formatted Price']}</p>
+                            </div>
+                        """, unsafe_allow_html=True)
+                    with col_b:
+                        user_inputs[row['Name']] = st.number_input("", min_value=0, step=1, key=row['Name'])
 
     # 📊 Right Column - Summary
     with col2:
@@ -124,13 +124,14 @@ if uploaded_file:
         if st.button("🧾 Calculate Value"):
             total_hr_min = sum(user_inputs.get(name, 0) * row['HR Min'] for name, row in df.set_index('Name').iterrows())
             total_hr_max = sum(user_inputs.get(name, 0) * row['HR Max'] for name, row in df.set_index('Name').iterrows())
-            total_gul_min = sum(user_inputs.get(name, 0) * row['GUL Min'] for name, row in df.set_index('Name').iterrows())
-            total_gul_max = sum(user_inputs.get(name, 0) * row['GUL Max'] for name, row in df.set_index('Name').iterrows())
+            total_wss_min = sum(user_inputs.get(name, 0) * row['WSS Min'] for name, row in df.set_index('Name').iterrows())
 
             st.markdown(f"""
                 <div class='summary-box'>
                     <p class='summary-title'>🧾 Total Value</p>
                     <p class='summary-value'><strong>HR:</strong> {format_price(total_hr_min, total_hr_max)}</p>
-                    <p class='summary-value'><strong>Gul:</strong> {format_price(total_gul_min, total_gul_max)}</p>
+                    <p class='summary-value'><strong>WSS:</strong> {format_price(total_wss_min, total_hr_max)}</p>
                 </div>
             """, unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)

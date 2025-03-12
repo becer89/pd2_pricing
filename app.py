@@ -30,23 +30,23 @@ st.markdown("""
 
         /* ✅ Nazwa produktu */
         .item-name { 
-            font-size: 18px !important; 
-            font-weight: bold !important; 
-            margin-bottom: 2px !important;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 3px;
         }
 
         /* ✅ Wartości cenowe */
         .item-price { 
-            font-size: 14px !important; 
-            font-style: italic !important; 
-            color: gray !important; 
-            margin-top: 0px !important;
+            font-size: 14px;
+            font-style: italic;
+            margin-bottom: 2px;
+            color: #555;
         }
 
         /* ✅ Input wyrównany do wysokości nazwy produktu */
         div[data-testid="stNumberInput"] {
             width: 100% !important;
-            margin-top: -5px !important;
+            margin-top: 5px !important;
         }
 
         /* ✅ Pozioma kreska pod produktem */

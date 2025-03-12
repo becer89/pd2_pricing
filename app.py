@@ -102,15 +102,32 @@ if uploaded_file:
 
     user_inputs = {}
 
+    # 🎛️ Left Column - Grouped Items
     with col1:
         st.subheader("🛍️ Select item quantities:")
         for category, items in categories.items():
             with st.expander(category, expanded=True):
                 for _, row in df[df["Name"].isin(items)].iterrows():
                     with st.container():
-                        user_inputs[row['Name']] = st.number_input(
-                            f"{row['Name']}", min_value=0, step=1, key=row['Name']
-                        )
+                        # Wyświetlanie produktu z pogrubioną nazwą i kursywą cen
+                        st.markdown(f"""
+                            <div class='item-container'>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <p class='item-name' style="font-size: 18px; font-weight: bold;">{row['Name']}</p>
+                                        <p class='item-price' style="font-size: 14px; font-style: italic; color: gray;">
+                                            HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, 
+                                            Gul: {row['GUL Min']:.2f}-{row['GUL Max']:.2f}, 
+                                            WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        {st.number_input("", min_value=0, step=1, key=row['Name'])}
+                                    </div>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+
     # 📊 Right Column - Summary
     with col2:
         st.subheader("📊 Summary")

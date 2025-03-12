@@ -172,18 +172,26 @@ if uploaded_file:
 
     user_inputs = {}
 
-    # 🔹 Inicjalizacja wartości w `st.session_state`
-    for key in user_inputs.keys():
-        if key not in st.session_state:
-            st.session_state[key] = 0  # Ustawienie domyślnie na 0
+    import streamlit as st
 
-    # 🎛️ Left Column - Grouped Items
-    with col1:
+    # 📌 Pobranie danych (przyjmujemy, że df jest wcześniej wczytany)
+    user_inputs = {}
+
+    # 🔹 **RESETOWANIE wartości przed inicjalizacją pól input**
+    if "reset_trigger" not in st.session_state:
+        st.session_state["reset_trigger"] = False  # Flaga resetu
+
+    if st.session_state["reset_trigger"]:
+        for key in df["Name"]:
+            st.session_state[key] = 0
+        st.session_state["reset_trigger"] = False  # ✅ Reset zakończony
+
+    # 🎛️ **Left Column - Grouped Items**
+    with st.sidebar:
         st.subheader("🛍️ Select item quantities:")
         for category, items in categories.items():
             with st.expander(category, expanded=False):  # Grupy domyślnie zwinięte
                 for _, row in df[df["Name"].isin(items)].iterrows():
-                    # 🔹 Używamy kolumn w Streamlit do wyrównania elementów
                     col_name, col_input = st.columns([0.7, 0.3])
 
                     with col_name:
@@ -203,30 +211,28 @@ if uploaded_file:
                             "", min_value=0, step=1, key=row['Name']
                         )
 
-                    # 🔹 Pozioma kreska pod każdym produktem
                     st.markdown("<hr class='product-divider'>", unsafe_allow_html=True)
 
-    # 📊 Right Column - Summary
-    with col2:
+    # 📊 **Right Column - Summary**
+    with st.container():
         st.markdown("<div class='center-content'>", unsafe_allow_html=True)
 
         st.subheader("📊 Summary")
 
-        # 🔹 Przycisk Resetujący ilości produktów
+        # 🔹 **Przycisk Resetu**
         if st.button("🔄 Reset"):
-            for key in user_inputs.keys():
-                st.session_state[key] = 0  # ✅ Resetujemy wartości
-            st.experimental_rerun()  # 🔥 Przeładowujemy interfejs, aby wartości się odświeżyły
+            st.session_state["reset_trigger"] = True  # ✅ Flaga resetu
+            st.experimental_rerun()  # ✅ Przeładowanie strony
 
-        # 🔹 Przycisk do obliczania wartości
+        # 🔹 **Przycisk Obliczania Wartości**
         if st.button("🧾 Calculate Value"):
             total_hr_min, total_hr_max = 0, 0
             total_gul_min, total_gul_max = 0, 0
             total_wss_min, total_wss_max = 0, 0
 
             for name in user_inputs.keys():
-                quantity = st.session_state.get(name, 0)  # ✅ Pobieramy wartości poprawnie
-                row = df[df["Name"] == name].iloc[0]  # Pobranie poprawnego wiersza
+                quantity = st.session_state.get(name, 0)
+                row = df[df["Name"] == name].iloc[0]
 
                 if quantity > 0:
                     total_hr_min += quantity * row['HR Min']
@@ -236,7 +242,6 @@ if uploaded_file:
                     total_wss_min += quantity * row['WSS Min']
                     total_wss_max += quantity * row['WSS Max']
 
-            # 🔥 Wyświetlanie poprawnej sumy wartości
             st.markdown(f"""
                 <div class='summary-box'>
                     <p class='summary-title'>🧾 Total Value</p>

@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import re
 
-# 📌 Title of the application
+# 📌 Page configuration
 st.set_page_config(page_title="PD2 Pricing App", layout="wide")
 st.title("💰 PD2 Pricing App")
 st.markdown("Upload your Excel file and calculate item prices.")
@@ -10,9 +10,16 @@ st.markdown("Upload your Excel file and calculate item prices.")
 # 🎨 Custom CSS for better UI
 st.markdown("""
     <style>
-        .stSlider { padding-top: 20px; }
-        .stButton>button { width: 100%; }
-        .css-1aumxhk { font-size: 20px; font-weight: bold; }
+        .stTextInput { margin-top: 10px; }
+        .stButton>button { width: 100%; padding: 10px; font-size: 18px; }
+        .summary-box { 
+            border: 2px solid #4CAF50; padding: 15px; border-radius: 10px; 
+            background-color: #f9f9f9; text-align: center;
+        }
+        .summary-title { font-size: 22px; font-weight: bold; color: #4CAF50; }
+        .summary-value { font-size: 18px; margin-bottom: 10px; }
+        .item-name { font-size: 18px; font-weight: bold; }
+        .item-price { font-size: 14px; font-style: italic; color: gray; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -67,37 +74,51 @@ if uploaded_file:
     df.fillna(0, inplace=True)
     df = df.drop_duplicates(subset=['Name'], keep='first')
 
-    # 🔹 Add prices to item names
-    df['Display Name'] = df.apply(lambda row: f"{row['Name']} [HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, "
-                                              f"Gul: {row['GUL Min']:.2f}-{row['GUL Max']:.2f}, "
-                                              f"WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}]", axis=1)
+    # 🔹 Format prices for display
+    def format_price(value_min, value_max):
+        value_min = f"{value_min:.2f}".rstrip('0').rstrip('.')  # Remove trailing zeros
+        value_max = f"{value_max:.2f}".rstrip('0').rstrip('.')
+        return f"{value_min}-{value_max}" if value_min != value_max else value_min
 
-    # 🎛️ User input interface
-    st.subheader("🛍️ Select item quantities:")
-    user_inputs = {}
+    df['Formatted Price'] = df.apply(lambda row: f"[HR: {format_price(row['HR Min'], row['HR Max'])}, "
+                                                 f"Gul: {format_price(row['GUL Min'], row['GUL Max'])}, "
+                                                 f"WSS: {format_price(row['WSS Min'], row['WSS Max'])}]", axis=1)
 
-    with st.expander("Select Items", expanded=True):
+    # 🎛️ UI with two columns
+    col1, col2 = st.columns([3, 1])
+
+    # 📜 Left Column - Items List
+    with col1:
+        st.subheader("🛍️ Select item quantities:")
+        user_inputs = {}
+
         for index, row in df.iterrows():
-            unique_key = f"{row['Name']}_{index}"
-            user_inputs[row['Name']] = st.slider(
-                row['Display Name'], min_value=0, max_value=50, step=1, key=unique_key
-            )
+            col1a, col1b = st.columns([3, 1])  # Create row layout (name | input field)
+            with col1a:
+                st.markdown(f"<p class='item-name'>{row['Name']}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p class='item-price'>{row['Formatted Price']}</p>", unsafe_allow_html=True)
+            with col1b:
+                unique_key = f"{row['Name']}_{index}"
+                user_inputs[row['Name']] = st.number_input("", min_value=0, step=1, key=unique_key)
 
-    # 🧮 Calculate total prices
-    if st.button("🧾 Calculate Value"):
-        total_hr_min = sum(user_inputs.get(name, 0) * row['HR Min'] for name, row in df.set_index('Name').iterrows())
-        total_hr_max = sum(user_inputs.get(name, 0) * row['HR Max'] for name, row in df.set_index('Name').iterrows())
-        total_gul_min = sum(user_inputs.get(name, 0) * row['GUL Min'] for name, row in df.set_index('Name').iterrows())
-        total_gul_max = sum(user_inputs.get(name, 0) * row['GUL Max'] for name, row in df.set_index('Name').iterrows())
-        total_wss_min = sum(user_inputs.get(name, 0) * row['WSS Min'] for name, row in df.set_index('Name').iterrows())
-        total_wss_max = sum(user_inputs.get(name, 0) * row['WSS Max'] for name, row in df.set_index('Name').iterrows())
-
-        # 📊 Display results in a table
+    # 📊 Right Column - Summary
+    with col2:
         st.subheader("📊 Summary")
-        results_df = pd.DataFrame({
-            "Currency": ["HR", "Gul", "WSS"],
-            "Min Value": [total_hr_min, total_gul_min, total_wss_min],
-            "Max Value": [total_hr_max, total_gul_max, total_wss_max]
-        })
 
-        st.table(results_df)
+        if st.button("🧾 Calculate Value"):
+            total_hr_min = sum(user_inputs.get(name, 0) * row['HR Min'] for name, row in df.set_index('Name').iterrows())
+            total_hr_max = sum(user_inputs.get(name, 0) * row['HR Max'] for name, row in df.set_index('Name').iterrows())
+            total_gul_min = sum(user_inputs.get(name, 0) * row['GUL Min'] for name, row in df.set_index('Name').iterrows())
+            total_gul_max = sum(user_inputs.get(name, 0) * row['GUL Max'] for name, row in df.set_index('Name').iterrows())
+            total_wss_min = sum(user_inputs.get(name, 0) * row['WSS Min'] for name, row in df.set_index('Name').iterrows())
+            total_wss_max = sum(user_inputs.get(name, 0) * row['WSS Max'] for name, row in df.set_index('Name').iterrows())
+
+            # 📊 Styled summary box
+            st.markdown(f"""
+                <div class='summary-box'>
+                    <p class='summary-title'>🧾 Total Value</p>
+                    <p class='summary-value'><strong>HR:</strong> {format_price(total_hr_min, total_hr_max)}</p>
+                    <p class='summary-value'><strong>Gul:</strong> {format_price(total_gul_min, total_gul_max)}</p>
+                    <p class='summary-value'><strong>WSS:</strong> {format_price(total_wss_min, total_wss_max)}</p>
+                </div>
+            """, unsafe_allow_html=True)

@@ -30,8 +30,8 @@ st.markdown("""
         .summary-value { font-size: 18px; margin-bottom: 10px; }
         .item-container {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            justify-content: center;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
@@ -60,12 +60,11 @@ st.markdown("""
             padding: 5px;
         }
         .stNumberInput {
-            width: 50px !important; 
-            height: 30px !important; 
+            width: 100% !important;  /* Szerokość równa ramce */
+            height: 40px !important;
             border-radius: 5px !important;
             border: 1px solid #ccc !important;
             text-align: center !important;
-            margin-left: auto !important;  
         }
     </style>
 """, unsafe_allow_html=True)
@@ -148,38 +147,33 @@ if uploaded_file:
         for category, items in categories.items():
             with st.expander(category, expanded=False):  # Grupy domyślnie zwinięte
                 for _, row in df[df["Name"].isin(items)].iterrows():
-                    with st.container():
-                        # 📌 Rozciągnięcie ramki i dodanie pola input do środka
-                        st.markdown(f"""
-                            <div class="item-container">
-                                <div class="item-text">
-                                    <p class="item-name">{row['Name']}</p>
-                                    <p class="item-price">
-                                        HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, 
-                                        Gul: {row['GUL Min']:.2f}-{row['GUL Max']:.2f}, 
-                                        WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
-                                    </p>
-                                </div>
-                                <div class="item-input">
-                                    {st.number_input("", min_value=0, step=1, key=row['Name'])}
-                                </div>
-                            </div>
-                        """, unsafe_allow_html=True)
+                    st.markdown(f"""
+                        <div class="item-container">
+                            <p class="item-name">{row['Name']}</p>
+                            <p class="item-price">
+                                HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, 
+                                Gul: {row['GUL Min']:.2f}-{row['GUL Max']:.2f}, 
+                                WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
+                            </p>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                    # 🔹 Pole do wpisania ilości (pod ramką)
+                    user_inputs[row['Name']] = st.number_input(
+                        f"Quantity for {row['Name']}", min_value=0, step=1, key=row['Name']
+                    )
 
     # 📊 Right Column - Summary
     with col2:
         st.subheader("📊 Summary")
 
         if st.button("🧾 Calculate Value"):
-            total_hr_min = 0
-            total_hr_max = 0
-            total_gul_min = 0
-            total_gul_max = 0
-            total_wss_min = 0
-            total_wss_max = 0
+            total_hr_min, total_hr_max = 0, 0
+            total_gul_min, total_gul_max = 0, 0
+            total_wss_min, total_wss_max = 0, 0
 
             for name, row in df.set_index('Name').iterrows():
-                quantity = user_inputs.get(name, 0)
+                quantity = user_inputs[name]
                 if quantity > 0:
                     total_hr_min += quantity * row['HR Min']
                     total_hr_max += quantity * row['HR Max']
@@ -188,7 +182,7 @@ if uploaded_file:
                     total_wss_min += quantity * row['WSS Min']
                     total_wss_max += quantity * row['WSS Max']
 
-            # 🔥 Wyświetlenie poprawnej sumy wartości
+            # 🔥 Wyświetlanie poprawnej sumy wartości
             st.markdown(f"""
                 <div class='summary-box'>
                     <p class='summary-title'>🧾 Total Value</p>

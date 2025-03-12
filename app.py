@@ -30,31 +30,26 @@ st.markdown("""
         .summary-value { font-size: 18px; margin-bottom: 10px; }
         .item-container {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: space-between;
             padding: 5px 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            margin-bottom: 3px; /* Minimalny odstęp między produktami */
             background-color: #f9f9f9;
+            margin-bottom: 3px;
+        }
         }
         .item-header { display: flex; justify-content: space-between; width: 100%; align-items: center; }
         .item-name { 
             font-size: 18px !important; 
             font-weight: bold !important; 
-            line-height: 1 !important; /* Minimalna wysokość wiersza */
-            margin: 0px !important;
-            padding: 0px !important;
-            display: inline-block !important;
+            margin-bottom: 2px !important;
         }
         .item-price { 
             font-size: 14px !important; 
             font-style: italic !important; 
             color: gray !important; 
-            margin: 0px !important;
-            padding: 0px !important;
-            line-height: 1 !important;
-            display: inline-block !important;
+            margin-top: 0px !important;
         }
         } 
         .item-input {
@@ -66,6 +61,13 @@ st.markdown("""
             font-size: 14px !important;
             margin-left: 10px !important;
             padding: 2px !important;
+        }
+            .stNumberInput {
+            text-align: center !important;
+            width: 60px !important;
+            height: 30px !important;
+            border-radius: 5px !important;
+            border: 1px solid #ccc !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -148,14 +150,11 @@ if uploaded_file:
         for category, items in categories.items():
             with st.expander(category, expanded=False):  # Grupy domyślnie zwinięte
                 for _, row in df[df["Name"].isin(items)].iterrows():
-                    user_inputs[row['Name']] = st.number_input(
-                        f"{row['Name']}", min_value=0, step=1, key=row['Name']
-                    )
+                    col_left, col_right = st.columns([3, 1])  # Dwie kolumny: nazwa + wartości oraz pole input
 
-                    # 📌 Tworzenie niestandardowego układu
-                    st.markdown(f"""
-                        <div class="item-container">
-                            <div>
+                    with col_left:
+                        st.markdown(f"""
+                            <div class="item-container">
                                 <p class="item-name">{row['Name']}</p>
                                 <p class="item-price">
                                     HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, 
@@ -163,9 +162,12 @@ if uploaded_file:
                                     WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
                                 </p>
                             </div>
-                            <input class="item-input" type="number" min="0" value="0">
-                        </div>
-                    """, unsafe_allow_html=True)
+                        """, unsafe_allow_html=True)
+
+                    with col_right:
+                        user_inputs[row['Name']] = st.number_input(
+                            "", min_value=0, step=1, key=row['Name']
+                        )
 
     # 📊 Right Column - Summary
     with col2:

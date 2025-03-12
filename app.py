@@ -216,11 +216,9 @@ if uploaded_file:
                         st.markdown(f"""
                             <div class="item-container">
                                 <p class="item-name">{row['Name']}</p>
-                                <p class="item-price">
-                                    HR: {row['HR Min']:.2f}-{row['HR Max']:.2f}, 
-                                    Gul: {row['GUL Min']:.2f}-{row['GUL Max']:.2f}, 
-                                    WSS: {row['WSS Min']:.2f}-{row['WSS Max']:.2f}
-                                </p>
+                                <p class="item-price"><strong>HR:</strong> {row['HR Min']:.2f} - {row['HR Max']:.2f}</p>
+                                <p class="item-price"><strong>Gul:</strong> {row['GUL Min']:.2f} - {row['GUL Max']:.2f}</p>
+                                <p class="item-price"><strong>WSS:</strong> {row['WSS Min']:.2f} - {row['WSS Max']:.2f}</p>
                             </div>
                         """, unsafe_allow_html=True)
 

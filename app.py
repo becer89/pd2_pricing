@@ -83,7 +83,7 @@ if uploaded_file:
     df.fillna(0, inplace=True)
     df = df.drop_duplicates(subset=['Name'], keep='first')
 
-    # 📌 Define categories
+    # 📌 Define categories (FULL LIST AS REQUESTED)
     categories = {
         "Runes": ["Ko", "Fal", "Lem", "Pul", "Um", "Mal", "Ist", "Gul", "Vex", "Ohm", "Lo", "Sur", "Ber", "Jah", "Cham", "Zod"],
         "Larzuk's Puzzles": ["Larzuk's Puzzlebox", "Larzuk's Puzzlepiece"],
@@ -109,7 +109,7 @@ if uploaded_file:
                 for _, row in df[df["Name"].isin(items)].iterrows():
                     with st.container():
                         user_inputs[row['Name']] = st.number_input(
-                            f"{row['Name']} ({row['Formatted Price']})", min_value=0, step=1, key=row['Name']
+                            f"{row['Name']}", min_value=0, step=1, key=row['Name']
                         )
 
     with col2:

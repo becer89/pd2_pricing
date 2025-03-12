@@ -102,20 +102,15 @@ st.markdown("""
         section[data-testid="stSidebar"] {
             width: 400px !important;
         }
-        /* ✅ Stylizacja kart produktów */
-        .item-container {
-            padding: 8px;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 10px;
-        }
         /* ✅ Input szeroki i wyśrodkowany */
         div[data-testid="stNumberInput"] {
             width: 80% !important;
             margin-left: auto !important;
             margin-right: auto !important;
-        }                                       
+        }  
+        div[data-testid="stNumberInput"] {
+            width: 80px !important;
+        }                                             
     </style>
 """, unsafe_allow_html=True)
 
@@ -224,7 +219,8 @@ if uploaded_file:
 
                     with col_input:
                         user_inputs[row['Name']] = st.number_input(
-                            "", min_value=0, step=1, key=row['Name']
+                            "", min_value=0, step=1, key=row['Name'], format="%d",
+                            help="Enter quantity", label_visibility="collapsed"
                         )
 
                     st.markdown("<hr class='product-divider'>", unsafe_allow_html=True)
